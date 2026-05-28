@@ -32,7 +32,7 @@ jq --arg av "$VERSION" '.AssemblyVersion = $av' \
   AutoFrontLine/AutoFrontLine.json > AutoFrontLine/AutoFrontLine.json.tmp
 mv AutoFrontLine/AutoFrontLine.json.tmp AutoFrontLine/AutoFrontLine.json
 
-python3 - <<PY
+py - <<PY
 import pathlib
 import re
 

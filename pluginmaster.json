@@ -5,13 +5,17 @@
     "Punchline": "Frontline party-center follower",
     "Description": "Automated Frontline movement and combat via vnavmesh and Rotation Solver Reborn.",
     "InternalName": "AutoFrontLine",
-    "AssemblyVersion": "1.0.0.0",
+    "AssemblyVersion": "1.0.1.0",
     "RepoUrl": "https://github.com/exatrines/AutoFrontLine",
-    "DownloadLinkInstall": "https://github.com/exatrines/AutoFrontLine/releases/download/v1.0.0.0/AutoFrontLine.zip",
-    "DownloadLinkUpdate": "https://github.com/exatrines/AutoFrontLine/releases/download/v1.0.0.0/AutoFrontLine.zip",
+    "DownloadLinkInstall": "https://github.com/exatrines/AutoFrontLine/releases/download/v1.0.1.0/AutoFrontLine.zip",
+    "DownloadLinkUpdate": "https://github.com/exatrines/AutoFrontLine/releases/download/v1.0.1.0/AutoFrontLine.zip",
     "ApplicableVersion": "any",
     "DalamudApiLevel": "15",
-    "Tags": ["frontline", "pvp", "automation"],
+    "Tags": [
+      "frontline",
+      "pvp",
+      "automation"
+    ],
     "IconUrl": "",
     "ImageUrl": ""
   }

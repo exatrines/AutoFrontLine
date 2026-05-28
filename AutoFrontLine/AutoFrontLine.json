@@ -3,11 +3,15 @@
   "Name": "Auto FrontLine",
   "InternalName": "AutoFrontLine",
   "Description": "Automated Frontline movement and combat via vnavmesh and Rotation Solver Reborn.",
-  "AssemblyVersion": "1.0.0.0",
+  "AssemblyVersion": "1.0.1.0",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 15,
   "Punchline": "Frontline party-center follower",
   "RepoUrl": "https://github.com/exatrines/AutoFrontLine",
   "AcceptsFeedback": true,
-  "Tags": ["frontline", "pvp", "automation"]
+  "Tags": [
+    "frontline",
+    "pvp",
+    "automation"
+  ]
 }
