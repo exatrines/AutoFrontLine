@@ -1,56 +1,49 @@
 # Auto Frontline
 
+<div align="center">
+<img src="./AutoFrontline/images/icon.png" width="300px">
+</div>
+
+## About
+
 FF14 Dalamud plugin that automates Frontline movement and combat.
 
-## Required plugins (not bundled)
+## Required Plugins
 
-- [vnavmesh](https://github.com/awgil/ffxiv_navmesh) — `/vnav moveto <X> <Y> <Z>`
-- [Rotation Solver Reborn](https://github.com/FFXIV-CombatReborn/RotationSolverReborn) — `/rotation Off` / `/rotation Auto`
+- [vnavmesh](https://github.com/awgil/ffxiv_navmesh)
+- [Rotation Solver Reborn](https://github.com/FFXIV-CombatReborn/RotationSolverReborn)
 
-## Install (custom repo)
+## Plugin Repository URL
 
-`pluginmaster.json` はこのリポジトリ外（別リポジトリ）で管理しています。
-
-Dalamud → Settings → Experimental → **Custom Plugin Repositories** に、その `pluginmaster.json` の raw URL を登録し、**Auto Frontline** をインストールしてください。
-
-## Build
-
-```powershell
-git submodule update --init --recursive
-dotnet build AutoFrontline.sln -c Release
+```
+https://raw.githubusercontent.com/exatrines/DalamudPlugins/refs/heads/main/pluginmaster.json
 ```
 
 ## In-game
 
-- `/autofrontline` — open settings (no arguments)
-- `/autofrontline on|off|toggle` — enable or disable without opening settings
+- `/autofrontline` — open settings
+- `/autofrontline on|off` — enable or disable plugin
+- `/autofrontline toggle` — toggle plugin
 - **General**: required plugins, Enable, intervals
 - **Debug**: field, tracked player, movement state
 
+## Build
+
+```bash
+git submodule update --init --recursive
+dotnet build AutoFrontline.sln -c Release
+```
+
 ## Release (maintainers)
 
-1. Bump version (four-part `AssemblyVersion`, tag `v` + version):
-
-   ```bash
-   bash .github/scripts/bump-version.sh 1.0.0.0
-   ```
-
-2. Commit, tag, and push（`main` だけでは Release は走りません。タグ必須）:
-
-   ```bash
-   git add AutoFrontline/AutoFrontline.json AutoFrontline/AutoFrontline.csproj CHANGELOG.md
-   git commit -m "Release 1.0.0.0"
-   git tag v1.0.0.0
-   git push origin main --follow-tags
-   ```
-
-3. 外部リポジトリの **`pluginmaster.json` も同じバージョンに更新**（`AssemblyVersion`・`DownloadLinkInstall` / `DownloadLinkUpdate`）。
-
-4. GitHub Actions **Release** workflow builds `AutoFrontline.zip` and publishes it to [Releases](https://github.com/exatrines/AutoFrontline/releases).
-
-   `v*` タグの push で自動実行。Actions タブから手動実行する場合は tag に `v1.0.0.0` を指定。
-
-`AutoFrontline/AutoFrontline.json` の `AssemblyVersion` とタグ（例: `v1.0.0.0`）は一致している必要があります。
+```bash
+bash .github/scripts/bump-version.sh 1.0.0.0
+git add AutoFrontline/AutoFrontline.json AutoFrontline/AutoFrontline.csproj CHANGELOG.md
+git commit -m "Release 1.0.0.0"
+git tag v1.0.0.0
+git push origin main
+git push origin  v1.0.0.0
+```
 
 ## License
 
