@@ -9,7 +9,7 @@ using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Group;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>フロントライン中のアライアンス／パーティ／CW メンバー収集。</summary>
 public static unsafe class AllianceMemberCollector

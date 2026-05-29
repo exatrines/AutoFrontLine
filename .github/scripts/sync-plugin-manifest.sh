@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SOURCE_MANIFEST="AutoFrontLine/AutoFrontLine.json"
-OUTPUT_MANIFEST="${1:-AutoFrontLine/bin/Release/AutoFrontLine.json}"
+SOURCE_MANIFEST="AutoFrontline/AutoFrontline.json"
+OUTPUT_MANIFEST="${1:-AutoFrontline/bin/Release/AutoFrontline.json}"
 
 if [[ -n "${RELEASE_VERSION:-}" ]]; then
   ASSEMBLY_VERSION="$RELEASE_VERSION"

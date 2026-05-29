@@ -1,6 +1,6 @@
-using System.Numerics;
+﻿using System.Numerics;
 
-namespace AutoFrontLine.UI;
+namespace AutoFrontline.UI;
 
 public static class ConfigWindow
 {

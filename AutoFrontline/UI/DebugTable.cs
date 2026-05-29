@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace AutoFrontLine.UI;
+namespace AutoFrontline.UI;
 
 /// <summary>Debug タブ用のラベル／値テーブル。</summary>
 internal sealed class DebugTable

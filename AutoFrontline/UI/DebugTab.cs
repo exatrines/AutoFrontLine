@@ -1,13 +1,13 @@
 using System.Linq;
 using System.Numerics;
-using AutoFrontLine.Services;
+using AutoFrontline.Services;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons;
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 
-namespace AutoFrontLine.UI;
+namespace AutoFrontline.UI;
 
 public static class DebugTab
 {

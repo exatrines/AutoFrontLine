@@ -2,7 +2,7 @@
 # Usage: bash .github/scripts/bump-version.sh 1.0.0.0
 set -euo pipefail
 
-MANIFEST="AutoFrontLine/AutoFrontLine.json"
+MANIFEST="AutoFrontline/AutoFrontline.json"
 
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <AssemblyVersion>" >&2
@@ -19,7 +19,7 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 CSPROJ_VERSION="${VERSION%.*}"
-DOWNLOAD_URL="https://github.com/exatrines/AutoFrontLine/releases/download/${TAG}/AutoFrontLine.zip"
+DOWNLOAD_URL="https://github.com/exatrines/AutoFrontline/releases/download/${TAG}/AutoFrontline.zip"
 
 jq --arg av "$VERSION" --arg url "$DOWNLOAD_URL" \
   '.AssemblyVersion = $av
@@ -32,7 +32,7 @@ py - <<PY
 import pathlib
 import re
 
-path = pathlib.Path("AutoFrontLine/AutoFrontLine.csproj")
+path = pathlib.Path("AutoFrontline/AutoFrontline.csproj")
 text = path.read_text(encoding="utf-8")
 text, n = re.subn(r"(<Version>)[^<]+(</Version>)", rf"\g<1>${CSPROJ_VERSION}\2", text, count=1)
 if n != 1:
@@ -42,12 +42,12 @@ PY
 
 echo "Updated to $VERSION (tag $TAG)"
 echo "  $MANIFEST"
-echo "  AutoFrontLine/AutoFrontLine.csproj (<Version>${CSPROJ_VERSION}</Version>)"
+echo "  AutoFrontline/AutoFrontline.csproj (<Version>${CSPROJ_VERSION}</Version>)"
 echo ""
 echo "Update pluginmaster.json in your external repo separately."
 echo ""
 echo "Next:"
-echo "  git add $MANIFEST AutoFrontLine/AutoFrontLine.csproj CHANGELOG.md"
+echo "  git add $MANIFEST AutoFrontline/AutoFrontline.csproj CHANGELOG.md"
 echo "  git commit -m \"Release ${VERSION}\""
 echo "  git tag ${TAG}"
 echo "  git push origin main"

@@ -1,4 +1,4 @@
-namespace AutoFrontLine.Services;
+﻿namespace AutoFrontline.Services;
 
 internal static class ConfigIntervals
 {

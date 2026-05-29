@@ -1,10 +1,10 @@
-namespace AutoFrontLine.UI;
+﻿namespace AutoFrontline.UI;
 
 public static class GeneralTab
 {
     public static void Draw()
     {
-        AflImGui.SectionHeader("Auto FrontLine");
+        AflImGui.SectionHeader("Auto Frontline");
         DrawRequiredPlugins();
 
         ImGui.Spacing();

@@ -5,7 +5,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.GameHelpers;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>密集中心プレイヤーの追跡と移動先の算出。</summary>
 public static class FollowTargetService

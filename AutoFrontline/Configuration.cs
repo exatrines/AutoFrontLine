@@ -1,4 +1,4 @@
-namespace AutoFrontLine;
+﻿namespace AutoFrontline;
 
 public sealed class Configuration
 {

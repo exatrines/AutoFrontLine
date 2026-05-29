@@ -1,4 +1,4 @@
-# Auto FrontLine
+# Auto Frontline
 
 FF14 Dalamud plugin that automates Frontline movement and combat.
 
@@ -11,19 +11,19 @@ FF14 Dalamud plugin that automates Frontline movement and combat.
 
 `pluginmaster.json` はこのリポジトリ外（別リポジトリ）で管理しています。
 
-Dalamud → Settings → Experimental → **Custom Plugin Repositories** に、その `pluginmaster.json` の raw URL を登録し、**Auto FrontLine** をインストールしてください。
+Dalamud → Settings → Experimental → **Custom Plugin Repositories** に、その `pluginmaster.json` の raw URL を登録し、**Auto Frontline** をインストールしてください。
 
 ## Build
 
 ```powershell
 git submodule update --init --recursive
-dotnet build AutoFrontLine.sln -c Release
+dotnet build AutoFrontline.sln -c Release
 ```
 
 ## In-game
 
 - `/autofrontline` — open settings (no arguments)
-- `/autofrontline on|off|toggle` — enable or disable without opening settings (`/autoflontline` is an alias)
+- `/autofrontline on|off|toggle` — enable or disable without opening settings
 - **General**: required plugins, Enable, intervals
 - **Debug**: field, tracked player, movement state
 
@@ -38,7 +38,7 @@ dotnet build AutoFrontLine.sln -c Release
 2. Commit, tag, and push（`main` だけでは Release は走りません。タグ必須）:
 
    ```bash
-   git add AutoFrontLine/AutoFrontLine.json AutoFrontLine/AutoFrontLine.csproj CHANGELOG.md
+   git add AutoFrontline/AutoFrontline.json AutoFrontline/AutoFrontline.csproj CHANGELOG.md
    git commit -m "Release 1.0.0.0"
    git tag v1.0.0.0
    git push origin main --follow-tags
@@ -46,11 +46,11 @@ dotnet build AutoFrontLine.sln -c Release
 
 3. 外部リポジトリの **`pluginmaster.json` も同じバージョンに更新**（`AssemblyVersion`・`DownloadLinkInstall` / `DownloadLinkUpdate`）。
 
-4. GitHub Actions **Release** workflow builds `AutoFrontLine.zip` and publishes it to [Releases](https://github.com/exatrines/AutoFrontLine/releases).
+4. GitHub Actions **Release** workflow builds `AutoFrontline.zip` and publishes it to [Releases](https://github.com/exatrines/AutoFrontline/releases).
 
    `v*` タグの push で自動実行。Actions タブから手動実行する場合は tag に `v1.0.0.0` を指定。
 
-`AutoFrontLine/AutoFrontLine.json` の `AssemblyVersion` とタグ（例: `v1.0.0.0`）は一致している必要があります。
+`AutoFrontline/AutoFrontline.json` の `AssemblyVersion` とタグ（例: `v1.0.0.0`）は一致している必要があります。
 
 ## License
 

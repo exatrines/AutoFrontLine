@@ -3,7 +3,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>
 /// 試合終了画面: FrontlineRecord で Callback.Fire(-1) し、続く SelectYesno を Yes。

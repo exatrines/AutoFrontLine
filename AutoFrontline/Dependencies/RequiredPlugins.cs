@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AutoFrontLine.Dependencies;
+namespace AutoFrontline.Dependencies;
 
 internal readonly record struct RequiredPlugin(string DisplayName, string InternalName);
 

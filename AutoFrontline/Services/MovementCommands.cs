@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>vnavmesh と Rotation Solver へのチャットコマンド送信。</summary>
 internal static class MovementCommands

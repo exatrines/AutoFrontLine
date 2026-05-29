@@ -6,7 +6,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Lumina.Excel.Sheets;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>追跡対象との距離に応じたマウント／降下。</summary>
 public static unsafe class TrackedPlayerSync

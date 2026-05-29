@@ -1,7 +1,7 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Numerics;
 
-namespace AutoFrontLine;
+namespace AutoFrontline;
 
 internal static class GameCoords
 {

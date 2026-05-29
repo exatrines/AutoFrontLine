@@ -1,4 +1,4 @@
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>フロントライン退出確認 SelectYesno の文言判定。</summary>
 internal static class LeaveDialogText

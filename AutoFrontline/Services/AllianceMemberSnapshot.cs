@@ -1,6 +1,6 @@
-using System.Numerics;
+﻿using System.Numerics;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 public readonly struct AllianceMemberSnapshot
 {

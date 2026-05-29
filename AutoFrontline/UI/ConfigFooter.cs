@@ -1,7 +1,7 @@
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface.Utility;
 
-namespace AutoFrontLine.UI;
+namespace AutoFrontline.UI;
 
 public static class ConfigFooter
 {

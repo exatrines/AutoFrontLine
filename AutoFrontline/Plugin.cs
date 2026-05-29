@@ -1,14 +1,14 @@
-using System.Numerics;
-using AutoFrontLine.Services;
+﻿using System.Numerics;
+using AutoFrontline.Services;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using ECommons.SimpleGui;
 
-namespace AutoFrontLine;
+namespace AutoFrontline;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public string Name => "Auto FrontLine";
+    public string Name => "Auto Frontline";
 
     internal static Configuration C = null!;
     internal static Plugin P = null!;
@@ -21,10 +21,8 @@ public sealed class Plugin : IDalamudPlugin
         C = EzConfig.Init<Configuration>();
         EzConfigGui.Init(UI.ConfigWindow.Draw, windowType: EzConfigGui.WindowType.Both);
         ConfigureConfigWindow();
-        EzCmd.Add("/autoflontline", PluginCommands.Handle, "Open settings window.");
-        EzCmd.Add("/autofrontline on", PluginCommands.Handle, "Enable.");
-        EzCmd.Add("/autofrontline off", PluginCommands.Handle, "Disable.");
-        EzCmd.Add("/autofrontline toggle", PluginCommands.Handle, "Toggle.");
+        const string help = "on|off|toggle — Enable or disable. No args: open settings.";
+        EzCmd.Add("/autofrontline", PluginCommands.Handle, help);
 
         Svc.Framework.Update += OnFrameworkUpdate;
     }

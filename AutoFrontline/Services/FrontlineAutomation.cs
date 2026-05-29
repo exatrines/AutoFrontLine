@@ -1,7 +1,7 @@
 using System.Numerics;
 using ECommons.GameHelpers;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>フレームごとの自動化オーケストレーション。</summary>
 public static class FrontlineAutomation

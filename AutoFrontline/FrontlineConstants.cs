@@ -1,4 +1,4 @@
-namespace AutoFrontLine;
+namespace AutoFrontline;
 
 /// <summary>フロントライン自動化で使う固定値とスロットルキー。</summary>
 internal static class FrontlineConstants

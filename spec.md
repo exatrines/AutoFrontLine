@@ -1,11 +1,11 @@
-# Auto FrontLine 仕様書
+# Auto Frontline 仕様書
 
 フロントライン向け Dalamud プラグイン。味方の密集地帯（50m 内の最多人数地点）を追跡し、vnavmesh / Rotation Solver Reborn で移動・戦闘を自動化する。
 
 - **Dalamud API Level:** 15
 - **依存:** ECommons（サブモジュール）
 - **配布:** 外部リポジトリの `pluginmaster.json` + 本リポジトリ GitHub Releases（`v*` タグで CI が zip を公開）
-- **マニフェスト:** `AutoFrontLine/AutoFrontLine.json`（バージョン・DL URL の正本。zip に同梱）
+- **マニフェスト:** `AutoFrontline/AutoFrontline.json`（`InternalName`: `AutoFrontline`。zip に `AutoFrontline.dll` / `AutoFrontline.json` を同梱）
 
 ## 必須外部プラグイン
 
@@ -37,7 +37,7 @@
 | `FollowIntervalSeconds` | 1 | 移動コマンド間隔（秒、UI は整数 1〜60） |
 | `PlayerReselectIntervalSeconds` | 3 | 追跡対象の再選択間隔（秒、UI は整数 1〜120） |
 
-- コマンド: `/autofrontline`, `/autoflontline`（表記ゆれ用）
+- コマンド: `/autofrontline`
   - 引数なし: 設定を開く
   - `on` / `off` / `toggle`: `Enabled` を変更（必須プラグイン未充足時は `on` を拒否しチャットに通知）
 - タブ: **General**（必須プラグイン・Enable・間隔）、**Debug**（状態表示、タブ文字色グレー）
@@ -106,7 +106,7 @@ IFramework.Update
 | アドオン | 動作 |
 |---------|------|
 | `ContentsFinderConfirm` | `Commence()`（参加確定） |
-| `FrontlineRecord` / `FrontLineRecord` | `Callback.Fire(addon, true, -1)` で退出要求（YesAlready と同じ） |
+| `FrontlineRecord` / `FrontlineRecord` | `Callback.Fire(addon, true, -1)` で退出要求（YesAlready と同じ） |
 | `SelectYesno` | 退出確認文言または pending 中は `Yes` |
 
 スロットル: Record 500ms、Yesno 300ms。退出要求から 60 秒で pending 解除。

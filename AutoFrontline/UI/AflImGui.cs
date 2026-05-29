@@ -1,4 +1,4 @@
-namespace AutoFrontLine.UI;
+namespace AutoFrontline.UI;
 
 internal static class AflImGui
 {

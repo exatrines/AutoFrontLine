@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (e.g. v1.0.0.0). Must match AutoFrontLine.json AssemblyVersion."
+        description: "Release tag (e.g. v1.0.0.0). Must match AutoFrontline.json AssemblyVersion."
         required: true
         type: string
 
@@ -41,9 +41,9 @@ jobs:
 
       - name: Verify manifest version
         run: |
-          EXPECTED=$(jq -r '.AssemblyVersion' AutoFrontLine/AutoFrontLine.json)
+          EXPECTED=$(jq -r '.AssemblyVersion' AutoFrontline/AutoFrontline.json)
           if [[ "$EXPECTED" != "$VERSION" ]]; then
-            echo "AutoFrontLine.json AssemblyVersion ($EXPECTED) does not match tag ($VERSION)." >&2
+            echo "AutoFrontline.json AssemblyVersion ($EXPECTED) does not match tag ($VERSION)." >&2
             echo "Run: bash .github/scripts/bump-version.sh $VERSION" >&2
             exit 1
           fi
@@ -61,16 +61,16 @@ jobs:
 
       - name: Restore and build
         run: |
-          dotnet restore AutoFrontLine.sln
-          dotnet build AutoFrontLine/AutoFrontLine.csproj -c Release --no-restore
+          dotnet restore AutoFrontline.sln
+          dotnet build AutoFrontline/AutoFrontline.csproj -c Release --no-restore
 
       - name: Sync plugin manifest
         run: RELEASE_VERSION="$VERSION" bash .github/scripts/sync-plugin-manifest.sh
 
       - name: Pack plugin zip
         run: |
-          cd AutoFrontLine/bin/Release
-          zip -j AutoFrontLine.zip AutoFrontLine.dll AutoFrontLine.json ECommons.dll
+          cd AutoFrontline/bin/Release
+          zip -j AutoFrontline.zip AutoFrontline.dll AutoFrontline.json ECommons.dll
 
       - name: Create GitHub Release
         env:
@@ -80,11 +80,11 @@ jobs:
             gh release upload "$TAG" \
               --repo "${{ github.repository }}" \
               --clobber \
-              AutoFrontLine/bin/Release/AutoFrontLine.zip
+              AutoFrontline/bin/Release/AutoFrontline.zip
           else
             gh release create "$TAG" \
               --repo "${{ github.repository }}" \
-              --title "Auto FrontLine ${VERSION}" \
+              --title "Auto Frontline ${VERSION}" \
               --generate-notes \
-              AutoFrontLine/bin/Release/AutoFrontLine.zip
+              AutoFrontline/bin/Release/AutoFrontline.zip
           fi

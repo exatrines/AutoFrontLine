@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AutoFrontLine;
+namespace AutoFrontline;
 
 public static class FrontlineFields
 {

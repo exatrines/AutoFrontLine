@@ -1,10 +1,10 @@
-using ECommons.Logging;
+﻿using ECommons.Logging;
 
-namespace AutoFrontLine;
+namespace AutoFrontline;
 
 internal static class PluginCommands
 {
-    private const string Usage = "/autofrontline on|off|toggle — Enable or disable (no args: open settings)";
+    private const string Usage = "/autofrontline on|off|toggle - Enable or disable (no args: open settings)";
 
     public static void Handle(string command, string args)
     {
@@ -44,12 +44,12 @@ internal static class PluginCommands
 
         if (C.Enabled == enabled)
         {
-            DuoLog.Information($"Auto FrontLine is already {(enabled ? "enabled" : "disabled")}.");
+            DuoLog.Information($"Auto Frontline is already {(enabled ? "enabled" : "disabled")}.");
             return;
         }
 
         C.Enabled = enabled;
         EzConfig.Save();
-        DuoLog.Information($"Auto FrontLine {(enabled ? "enabled" : "disabled")}.");
+        DuoLog.Information($"Auto Frontline {(enabled ? "enabled" : "disabled")}.");
     }
 }

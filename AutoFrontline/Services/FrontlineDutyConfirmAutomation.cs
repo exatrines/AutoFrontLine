@@ -2,7 +2,7 @@ using ECommons.Automation.UIInput;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-namespace AutoFrontLine.Services;
+namespace AutoFrontline.Services;
 
 /// <summary>コンテンツファインダー参加確認で Commence を押す。</summary>
 public static unsafe class FrontlineDutyConfirmAutomation
