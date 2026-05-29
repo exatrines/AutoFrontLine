@@ -80,24 +80,30 @@ IFramework.Update
 
 - **移動先:** 追跡対象の位置から水平 **1m 以上 3m 未満** のランダム点
 - **スキップ:** 追跡対象が前回 moveto 時から **0.1m 未満** しか動いていなければ moveto しない
-- **コマンド**（移動先があるフォロー周期のみ）: `MovementCommands.MoveTo` が順に実行
-  ```
-  /rotation Off
-  /vnav moveto <X> <Y> <Z>
-  /rotation Auto
-  ```
+- **コマンド**（移動先があるフォロー周期のみ）: `/vnav moveto <X> <Y> <Z>`
+
+## Rotation Solver
+
+`IsAutomationActive` かつフロントライン内・Rotation Solver ロード時。`RotationSolverState` が RSR の `DataCenter` を参照する。
+
+| RSR 状態 | 動作 |
+|---------|------|
+| Off（None）または Manual | `/rotation Auto Big`（2 秒スロットルで再送） |
+| Auto Big | 何もしない |
+| その他 | 何もしない |
 
 ## マウント
 
-追跡対象との距離のみで判定（対象の乗降は見ない）。
+自分が**非戦闘**（`ConditionFlag.InCombat` でない）のときは常にマウントを試行する。
 
-| 距離 | 挙動 |
+| 状態 | 挙動 |
 |------|------|
-| 5m 以上 | 抜刀中または戦闘中なら `/battlemode off` で納刀後、マウントルーレット（1.5s スロットル） |
-| 5m 未満 | `/mount` で降下（1.5s スロットル） |
+| 非戦闘・未マウント | 抜刀中なら `/battlemode off`（0.5s スロットル）→ マウントルーレット（1.5s スロットル） |
+| 自分が戦闘中 | マウント試行しない |
+| 半径 30m 内の味方が **3 人以上** 戦闘中かつ自分がマウント中 | `/mount` で降下（1.5s スロットル） |
 
-- 5m 以上かつ未マウントのとき、抜刀中または非戦闘なら `ShouldDeferMovement` が true（moveto を待つ）
-- **納刀済みの実戦闘中**（`InCombat` かつ非抜刀）はマウント試行・移動待ちを行わない
+- 味方の戦闘判定: オブジェクトが解決できる場合 `Character.InCombat`
+- 非戦闘かつ未マウントのとき `ShouldDeferMovement` が true（moveto を待つ）
 
 ## ダイアログ自動操作
 
@@ -129,6 +135,8 @@ IFramework.Update
 | `Services/FrontlineLeaveAutomation.cs` | 結果画面退出 + SelectYesno 確認 |
 | `Services/LeaveDialogText.cs` | 退出 Yesno 文言判定 |
 | `Services/FrontlineDutyConfirmAutomation.cs` | コンテンツファインダー参加確定 |
+| `Services/RotationSolverState.cs` | RSR 稼働状態の参照 |
+| `Services/RotationModeAutomation.cs` | Off / Manual 時に Auto Big へ揃える |
 | `UI/ConfigWindow.cs` | タブ付き設定ウィンドウ |
 | `UI/GeneralTab.cs` | General タブ |
 | `UI/DebugTab.cs` | Debug タブ |
@@ -141,7 +149,7 @@ IFramework.Update
 | 定数 | 値 |
 |------|-----|
 | 密集半径 | 50m |
+| 近傍戦闘判定半径 | 30m |
+| 近傍戦闘降下人数 | 3 人 |
 | 移動オフセット | 1m ≤ r < 3m |
 | 位置変化閾値 | 0.1m |
-| マウント距離 | 5m |
-| 退出ボタン Node | 65 |

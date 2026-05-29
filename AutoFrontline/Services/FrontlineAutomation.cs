@@ -9,6 +9,7 @@ public static class FrontlineAutomation
     public static void Update()
     {
         RequiredPlugins.SyncEnabledState();
+        RotationModeAutomation.Update();
 
         if (Player.IsDead)
             return;
