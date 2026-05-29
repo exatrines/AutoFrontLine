@@ -37,7 +37,7 @@
 | `FollowIntervalSeconds` | 1 | 移動コマンド間隔（秒、UI は整数 1〜60） |
 | `PlayerReselectIntervalSeconds` | 3 | 追跡対象の再選択間隔（秒、UI は整数 1〜120） |
 
-- コマンド: `/autofrontline`, `/autoflontline`（表記ゆれ用）, `/afl`
+- コマンド: `/autofrontline`, `/autoflontline`（表記ゆれ用）
   - 引数なし: 設定を開く
   - `on` / `off` / `toggle`: `Enabled` を変更（必須プラグイン未充足時は `on` を拒否しチャットに通知）
 - タブ: **General**（必須プラグイン・Enable・間隔）、**Debug**（状態表示、タブ文字色グレー）

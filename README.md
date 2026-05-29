@@ -22,7 +22,7 @@ dotnet build AutoFrontLine.sln -c Release
 
 ## In-game
 
-- `/autofrontline` or `/afl` — open settings (no arguments)
+- `/autofrontline` — open settings (no arguments)
 - `/autofrontline on|off|toggle` — enable or disable without opening settings (`/autoflontline` is an alias)
 - **General**: required plugins, Enable, intervals
 - **Debug**: field, tracked player, movement state
