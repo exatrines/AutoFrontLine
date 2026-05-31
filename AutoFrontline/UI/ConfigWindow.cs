@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace AutoFrontline.UI;
 
@@ -17,6 +17,7 @@ public static class ConfigWindow
         if (ImGui.BeginTabBar("AflTabs"))
         {
             DrawTab("General", GeneralTab.Draw, null);
+            DrawTab("Settings", SettingsTab.Draw, null);
             DrawTab("Debug", DebugTab.Draw, ImGuiColors.DalamudGrey);
             ImGui.EndTabBar();
         }

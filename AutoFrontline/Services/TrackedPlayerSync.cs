@@ -1,25 +1,22 @@
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Lumina.Excel.Sheets;
 
 namespace AutoFrontline.Services;
 
-/// <summary>非戦闘時はマウントを試行。近傍の味方が多数戦闘中なら降下。</summary>
+/// <summary>移動先が遠いときマウントを試行。近傍の敵プレイヤーがいるとき降下。</summary>
 public static unsafe class TrackedPlayerSync
 {
-    private static uint? mountRouletteActionId;
-
     public static float LastDistanceToTracked { get; private set; }
+    public static float LastDistanceToMoveDestination { get; private set; }
     public static bool LastSelfInCombat { get; private set; }
-    public static int LastNearbyAlliesInCombat { get; private set; }
+    public static int LastNearbyEnemyCount { get; private set; }
 
     public static bool ShouldDeferMovement =>
-        !InCombat && !Player.Mounted && !Player.Mounting;
+        ShouldTryMountForMoveDistance() && !Player.Mounted && !Player.Mounting;
 
     private static bool InCombat => Svc.Condition[ConditionFlag.InCombat];
 
@@ -33,59 +30,31 @@ public static unsafe class TrackedPlayerSync
             return;
 
         LastDistanceToTracked = Vector3.Distance(Player.Object!.Position, tracked.Position);
+        if (FollowTargetService.TryGetMoveDestinationDistance(out var moveDistance))
+            LastDistanceToMoveDestination = moveDistance;
     }
+
+    private static bool ShouldTryMountForMoveDistance() =>
+        FollowTargetService.TryGetMoveDestinationDistance(out var distance)
+        && distance >= C.MountDistanceMeters;
 
     private static void SyncMount()
     {
-        LastNearbyAlliesInCombat = CountNearbyAlliesInCombat();
+        var allies = AllianceMemberCache.GetMembers();
+        var hasNearbyEnemy = NearbyEnemyDetector.HasNearbyEnemy(allies, out var enemyCount);
+        LastNearbyEnemyCount = enemyCount;
 
-        if (Player.Mounted && LastNearbyAlliesInCombat >= FrontlineConstants.NearbyCombatDismountCount)
+        if (Player.Mounted && hasNearbyEnemy)
         {
             if (EzThrottler.Throttle(FrontlineConstants.ThrottleDismount, FrontlineConstants.DismountThrottleMs))
                 Chat.ExecuteCommand("/mount");
             return;
         }
 
-        if (InCombat)
+        if (!ShouldTryMountForMoveDistance())
             return;
 
         TryMount();
-    }
-
-    private static int CountNearbyAlliesInCombat()
-    {
-        if (!Player.Available || Player.Object == null)
-            return 0;
-
-        var selfPosition = Player.Object.Position;
-        var radius = FrontlineConstants.NearbyCombatRadiusMeters;
-        var count = 0;
-
-        foreach (var member in AllianceMemberCollector.Collect())
-        {
-            if (member.IsDead || member.ContentId == Player.CID)
-                continue;
-
-            if (Vector3.Distance(selfPosition, member.Position) > radius)
-                continue;
-
-            if (IsMemberInCombat(member))
-                count++;
-        }
-
-        return count;
-    }
-
-    private static bool IsMemberInCombat(AllianceMemberSnapshot member)
-    {
-        if (member.EntityId == 0)
-            return false;
-
-        var obj = Svc.Objects.SearchByEntityId(member.EntityId);
-        if (obj is not ICharacter character || character.CurrentHp == 0)
-            return false;
-
-        return ((Character*)obj.Address)->InCombat;
     }
 
     private static void TryMount()
@@ -93,28 +62,25 @@ public static unsafe class TrackedPlayerSync
         if (Player.Mounted || Player.Mounting)
             return;
 
-        if (IsWeaponDrawn())
+        if (EzThrottler.Throttle(FrontlineConstants.ThrottleMount, FrontlineConstants.MountThrottleMs))
+            UseConfiguredMount();
+    }
+
+    private static void UseConfiguredMount()
+    {
+        if (C.MountSelectionId != MountCatalog.RouletteSelectionId
+            && MountCatalog.IsMountOwned(C.MountSelectionId))
         {
-            if (EzThrottler.Throttle(FrontlineConstants.ThrottleSheathe, FrontlineConstants.SheatheThrottleMs))
-                Chat.ExecuteCommand("/battlemode off");
+            UseSpecificMount(C.MountSelectionId);
             return;
         }
 
-        if (EzThrottler.Throttle(FrontlineConstants.ThrottleMount, FrontlineConstants.MountThrottleMs))
-            UseMountRoulette();
+        UseMountRoulette();
     }
-
-    private static bool IsWeaponDrawn() =>
-        Player.Available
-        && Player.Object?.Address != nint.Zero
-        && ((Character*)Player.Object.Address)->IsWeaponDrawn;
 
     private static void UseMountRoulette()
     {
-        var actionId = mountRouletteActionId
-                       ??= ResolveMountRouletteActionId()
-                       ?? FrontlineConstants.MountRouletteGeneralActionId;
-
+        var actionId = MountCatalog.ResolveRouletteActionId();
         var actionManager = ActionManager.Instance();
         if (actionManager != null)
             actionManager->UseAction(ActionType.GeneralAction, actionId, 0xE0000000);
@@ -124,15 +90,13 @@ public static unsafe class TrackedPlayerSync
             Chat.ExecuteCommand($"/gaction \"{name}\"");
     }
 
-    private static uint? ResolveMountRouletteActionId()
+    private static void UseSpecificMount(uint mountRowId)
     {
-        foreach (var row in Svc.Data.GetExcelSheet<GeneralAction>())
-        {
-            var name = row.Name.ToString();
-            if (name is "Mount Roulette" or "マウントルーレット")
-                return row.RowId;
-        }
+        if (Svc.Data.GetExcelSheet<Mount>().GetRowOrDefault(mountRowId) is not { } mount)
+            return;
 
-        return null;
+        var actionManager = ActionManager.Instance();
+        if (actionManager != null)
+            actionManager->UseAction(ActionType.Mount, mountRowId, 0xE0000000);
     }
 }

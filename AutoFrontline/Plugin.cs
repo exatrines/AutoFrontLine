@@ -11,11 +11,9 @@ public sealed class Plugin : IDalamudPlugin
     public string Name => "Auto Frontline";
 
     internal static Configuration C = null!;
-    internal static Plugin P = null!;
 
     public Plugin(IDalamudPluginInterface pluginInterface)
     {
-        P = this;
         ECommonsMain.Init(pluginInterface, this);
 
         C = EzConfig.Init<Configuration>();
@@ -23,6 +21,8 @@ public sealed class Plugin : IDalamudPlugin
         ConfigureConfigWindow();
         const string help = "on|off|toggle — Enable or disable. No args: open settings.";
         EzCmd.Add("/autofrontline", PluginCommands.Handle, help);
+        PluginDtr.Init();
+        FrontlineLeaveAutomation.Init();
 
         Svc.Framework.Update += OnFrameworkUpdate;
     }
@@ -44,8 +44,8 @@ public sealed class Plugin : IDalamudPlugin
     public void Dispose()
     {
         Svc.Framework.Update -= OnFrameworkUpdate;
+        FrontlineLeaveAutomation.Dispose();
         ECommonsMain.Dispose();
-        P = null!;
         C = null!;
     }
 }

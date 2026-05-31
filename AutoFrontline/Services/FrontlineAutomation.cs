@@ -1,4 +1,5 @@
 using System.Numerics;
+using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 
 namespace AutoFrontline.Services;
@@ -8,6 +9,7 @@ public static class FrontlineAutomation
 {
     public static void Update()
     {
+        AllianceMemberCache.BeginFrame();
         RequiredPlugins.SyncEnabledState();
         RotationModeAutomation.Update();
 
@@ -17,7 +19,6 @@ public static class FrontlineAutomation
         FrontlineDutyConfirmAutomation.Update();
         FrontlineLeaveAutomation.Update();
 
-        // 試合終了結果画面（FrontlineRecord）では、退出処理のみ行い他の操作は止める。
         if (FrontlineLeaveAutomation.IsRecordScreenVisible)
             return;
 
@@ -28,12 +29,16 @@ public static class FrontlineAutomation
             return;
 
         FollowTargetService.UpdateSelection();
+        ClosestEnemyPlayerTargeting.Update();
         TrackedPlayerSync.Update();
 
         if (TrackedPlayerSync.ShouldDeferMovement)
             return;
 
-        if (!EzThrottler.Throttle(FrontlineConstants.ThrottleMove, ConfigIntervals.FollowMs))
+        if (!EzThrottler.Throttle(FrontlineConstants.ThrottleMove, FollowTargetService.MoveRefreshIntervalMs))
+            return;
+
+        if (!PlayerMovementGate.CanIssueVnavMoveTo)
             return;
 
         if (FollowTargetService.TryGetMoveTarget() is not Vector3 target)

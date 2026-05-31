@@ -5,18 +5,32 @@ internal static class LeaveDialogText
 {
     public static bool IsLeaveConfirmation(string text)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        if (BilingualTextMatcher.IsNullOrWhiteSpace(text))
             return false;
 
-        if (text.Contains("フロントライン", StringComparison.Ordinal)
-            && text.Contains("退出", StringComparison.Ordinal))
+        if (BilingualTextMatcher.ContainsAll(text, StringComparison.Ordinal, "フロントライン", "退出"))
             return true;
 
-        if (text.Contains("Frontline", StringComparison.OrdinalIgnoreCase)
-            && text.Contains("leave", StringComparison.OrdinalIgnoreCase))
+        if (BilingualTextMatcher.ContainsAll(text, StringComparison.OrdinalIgnoreCase, "Frontline", "leave"))
             return true;
 
-        return text.Contains("このまま退出", StringComparison.Ordinal)
-               || text.Contains("leave now", StringComparison.OrdinalIgnoreCase);
+        if (BilingualTextMatcher.ContainsAny(
+                text,
+                StringComparison.Ordinal,
+                "このまま退出")
+            || BilingualTextMatcher.ContainsAny(
+                text,
+                StringComparison.OrdinalIgnoreCase,
+                "leave now"))
+            return true;
+
+        return BilingualTextMatcher.ContainsAny(
+                   text,
+                   StringComparison.Ordinal,
+                   "コンテンツから退出")
+               || BilingualTextMatcher.ContainsAny(
+                   text,
+                   StringComparison.OrdinalIgnoreCase,
+                   "Abandon duty");
     }
 }

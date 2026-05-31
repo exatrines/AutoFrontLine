@@ -6,7 +6,7 @@ public static class FrontlineFields
 {
     private static readonly Dictionary<uint, string> Fields = new()
     {
-        [376] = "外縁遺跡群（制圧戦）",
+        [1273] = "外縁遺跡群（制圧戦）",
         [431] = "シールロック（争奪戦）",
         [554] = "フィールド・オブ・グローリー（砕氷戦）",
         [888] = "オンサル・ハカイル（終節戦）",

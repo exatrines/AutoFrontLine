@@ -22,7 +22,7 @@ internal static class PluginCommands
                 SetEnabled(false);
                 return;
             case "toggle":
-                SetEnabled(!C.Enabled);
+                ToggleEnabled();
                 return;
             case null:
             case "":
@@ -34,7 +34,9 @@ internal static class PluginCommands
         }
     }
 
-    private static void SetEnabled(bool enabled)
+    public static void ToggleEnabled() => SetEnabled(!C.Enabled);
+
+    internal static void SetEnabled(bool enabled)
     {
         if (enabled && !RequiredPlugins.AreAllLoaded)
         {

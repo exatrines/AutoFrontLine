@@ -56,6 +56,10 @@ public static class DebugTab
         table.Row("In combat", TrackedPlayerSync.LastSelfInCombat ? "Yes" : "No",
             TrackedPlayerSync.LastSelfInCombat ? ImGuiColors.DalamudRed : ImGuiColors.HealerGreen);
         table.Row("Mounted", Player.Mounted ? "Yes" : "No");
+        table.Row("Casting", Player.IsCasting ? "Yes" : "No");
+        table.Row("Mounting", Player.Mounting ? "Yes" : "No");
+        table.Row("Mount choice", MountCatalog.GetDisplayName(C.MountSelectionId));
+        table.Row($"Nearby enemies ({C.DismountEnemyDistanceMeters}m)", $"{TrackedPlayerSync.LastNearbyEnemyCount}");
         table.End();
     }
 
@@ -71,6 +75,15 @@ public static class DebugTab
         table.Row("Tracked", string.IsNullOrEmpty(tracked) ? "—" : tracked);
         table.Row("Job", GetTrackedJobName());
         table.Row("Distance", $"{TrackedPlayerSync.LastDistanceToTracked:F1} m");
+        if (!string.IsNullOrEmpty(FollowTargetService.LastSelectionMode))
+            table.Row("Selection mode", FollowTargetService.LastSelectionMode);
+        if (!string.IsNullOrEmpty(FollowTargetService.LastProximityEnemyName))
+            table.Row("Proximity enemy", FollowTargetService.LastProximityEnemyName);
+
+        var enemy = ClosestEnemyPlayerTargeting.LastClosestEnemy;
+        table.Row("Combat target", enemy?.Name.ToString() ?? "—");
+        if (enemy != null)
+            table.Row("Combat distance", $"{ClosestEnemyPlayerTargeting.LastClosestEnemyDistance:F1} m");
 
         if (!string.IsNullOrEmpty(FollowTargetService.LastDensestMemberName))
         {
@@ -120,6 +133,7 @@ public static class DebugTab
     {
         AflImGui.SectionHeader("Status");
         DrawStatusBullet("Movement", TrackedPlayerSync.ShouldDeferMovement, "Waiting to mount before move");
+        DrawStatusBullet("Vnav blocked", !PlayerMovementGate.CanIssueVnavMoveTo, "Casting or mounting");
         DrawStatusBullet("Leave", FrontlineLeaveAutomation.PendingLeaveConfirm, "Waiting for leave confirmation");
     }
 

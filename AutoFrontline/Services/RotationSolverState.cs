@@ -6,9 +6,11 @@ namespace AutoFrontline.Services;
 internal enum RotationSolverOperatingState
 {
     Unknown,
+    /// <summary>RSR Auto Off（DataCenter.State == false）。</summary>
     Off,
     Manual,
     AutoBig,
+    AutoManual,
     AutoOther,
 }
 
@@ -33,19 +35,22 @@ internal static class RotationSolverState
         if (isManual)
             return RotationSolverOperatingState.Manual;
 
-        if (IsAutoBig(dataCenterType))
+        if (IsTargetingType(dataCenterType, "Big"))
             return RotationSolverOperatingState.AutoBig;
+
+        if (IsTargetingType(dataCenterType, "Manual"))
+            return RotationSolverOperatingState.AutoManual;
 
         return RotationSolverOperatingState.AutoOther;
     }
 
-    private static bool IsAutoBig(Type dataCenterType)
+    private static bool IsTargetingType(Type dataCenterType, string typeName)
     {
         var targetingProp = dataCenterType.GetProperty("TargetingType", BindingFlags.Public | BindingFlags.Static);
         if (targetingProp?.GetValue(null) is not { } targetingValue)
             return false;
 
-        return targetingValue.ToString()?.Equals("Big", StringComparison.OrdinalIgnoreCase) == true;
+        return targetingValue.ToString()?.Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private static bool ReadStaticBool(Type type, string propertyName)

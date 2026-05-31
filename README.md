@@ -24,7 +24,8 @@ https://raw.githubusercontent.com/exatrines/DalamudPlugins/refs/heads/main/plugi
 - `/autofrontline` — open settings
 - `/autofrontline on|off` — enable or disable plugin
 - `/autofrontline toggle` — toggle plugin
-- **General**: required plugins, Enable, intervals
+- **General**: required plugins, recommended job
+- **Settings**: Enable, mount, intervals
 - **Debug**: field, tracked player, movement state
 
 ## Build

@@ -29,6 +29,9 @@ public static unsafe class FrontlineDutyConfirmAutomation
         if (commencedForCurrentAddon)
             return;
 
+        if (!DailyFrontlineDutyText.IsDailyFrontlineMatching(addon))
+            return;
+
         if (!EzThrottler.Throttle(FrontlineConstants.ThrottleContentsFinderConfirm, FrontlineConstants.ContentsFinderConfirmThrottleMs))
             return;
 

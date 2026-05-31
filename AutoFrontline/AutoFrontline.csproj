@@ -4,7 +4,7 @@
 
     <PropertyGroup>
         <Authors>exatrines</Authors>
-        <Version>1.0.10</Version>
+        <Version>1.1.0</Version>
         <Description>Automated Frontline movement and combat via vnavmesh and Rotation Solver</Description>
         <PackageProjectUrl>https://github.com/exatrines/AutoFrontline</PackageProjectUrl>
         <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>

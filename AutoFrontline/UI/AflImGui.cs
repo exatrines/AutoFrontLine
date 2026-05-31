@@ -23,12 +23,11 @@ internal static class AflImGui
         ImGui.TextWrapped(plugin.DisplayName);
     }
 
-    public static void SliderSeconds(string label, ref float seconds, int min, int max, float width = DefaultSliderWidth)
+    public static void SliderSeconds(string label, ref float seconds, float min, float max, float width = DefaultSliderWidth)
     {
-        var value = (int)seconds;
+        seconds = Math.Clamp(seconds, min, max);
         ImGui.SetNextItemWidth(width);
-        ImGui.SliderInt(label, ref value, min, max, "%d");
-        seconds = value;
+        ImGui.SliderFloat(label, ref seconds, min, max, "%.1f");
     }
 
     /// <summary>必須プラグイン未充足時に設定項目を無効化して描画する。</summary>

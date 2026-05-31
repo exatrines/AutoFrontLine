@@ -2,10 +2,12 @@
 
 internal static class ConfigIntervals
 {
-    public static int FollowMs => ToMilliseconds(C.FollowIntervalSeconds);
+    public static int GroupMovementRefreshMs =>
+        ToMilliseconds(C.GroupMovementRefreshIntervalSeconds, FrontlineConstants.ModeRefreshMinMs);
 
-    public static int PlayerReselectMs => ToMilliseconds(C.PlayerReselectIntervalSeconds);
+    public static int HostileModeRefreshMs =>
+        ToMilliseconds(C.HostileModeRefreshIntervalSeconds, FrontlineConstants.ModeRefreshMinMs);
 
-    private static int ToMilliseconds(float seconds) =>
-        Math.Max(FrontlineConstants.ConfigIntervalMinMs, (int)seconds * 1000);
+    private static int ToMilliseconds(float seconds, int minMs) =>
+        Math.Max(minMs, (int)Math.Round(seconds * 1000f));
 }

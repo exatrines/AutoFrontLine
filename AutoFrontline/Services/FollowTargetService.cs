@@ -1,20 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.GameHelpers;
 
 namespace AutoFrontline.Services;
 
-/// <summary>密集中心プレイヤーの追跡と移動先の算出。</summary>
+/// <summary>追跡対象の選定と移動先の算出。</summary>
 public static class FollowTargetService
 {
     private static ulong trackedContentId;
     private static long lastSelectionTick;
+    private static long lastNaviRebuildTick;
     private static Vector3? cachedTrackedPosition;
+    private static FollowSelectionMode selectionMode;
 
-    // Debug 表示用（DebugTab）
     public static int LastAllianceMemberCount { get; private set; }
     public static string LastPickedMemberName { get; private set; } = string.Empty;
     public static Vector3? LastTrackedPlayerPosition { get; private set; }
@@ -24,16 +24,21 @@ public static class FollowTargetService
     public static bool TrackedPositionUnchanged { get; private set; }
     public static string LastDensestMemberName { get; private set; } = string.Empty;
     public static int LastDensestNeighborCount { get; private set; }
+    public static string LastSelectionMode => selectionMode.ToDebugLabel();
+    public static string LastProximityEnemyName { get; private set; } = string.Empty;
+    public static bool IsHostileMode => selectionMode == FollowSelectionMode.Hostile;
+    public static int MoveRefreshIntervalMs =>
+        IsHostileMode ? ConfigIntervals.HostileModeRefreshMs : ConfigIntervals.GroupMovementRefreshMs;
 
     public static void UpdateSelection()
     {
-        var members = CollectMembers();
         if (Player.Object == null)
         {
             ClearTarget();
             return;
         }
 
+        var members = GetMembers();
         if (trackedContentId != 0 && !IsTrackedAlive(members))
             SelectNewTarget(members);
         else if (trackedContentId == 0 || ShouldReselectOnTimer())
@@ -45,27 +50,76 @@ public static class FollowTargetService
         if (trackedContentId == 0 || Player.Object == null)
             return null;
 
-        var snapshot = CollectMembers().FirstOrDefault(m => m.ContentId == trackedContentId);
+        if (PlayerObjectResolver.FindByContentId(trackedContentId) is { } byContentId)
+            return byContentId;
+
+        var snapshot = GetMembers().FirstOrDefault(m => m.ContentId == trackedContentId);
         if (snapshot.ContentId == 0)
             return null;
 
-        if (snapshot.EntityId != 0)
+        return PlayerObjectResolver.ResolveFromSnapshot(snapshot);
+    }
+
+    public static bool TryGetMoveDestinationDistance(out float distanceMeters)
+    {
+        distanceMeters = 0;
+        if (Player.Object == null)
+            return false;
+
+        Vector3? destination = LastMoveTarget;
+        if (destination == null)
         {
-            var byEntity = Svc.Objects.SearchByEntityId(snapshot.EntityId);
-            if (byEntity != null)
-                return byEntity;
+            var tracked = TryGetTrackedGameObject();
+            if (tracked == null)
+                return false;
+
+            destination = tracked.Position;
         }
 
-        return Svc.Objects.OfType<IPlayerCharacter>()
-            .FirstOrDefault(pc => pc.Name.ToString() == snapshot.Name);
+        distanceMeters = Vector3.Distance(Player.Object.Position, destination.Value);
+        return true;
     }
 
     public static Vector3? TryGetMoveTarget()
     {
-        var members = CollectMembers();
         if (trackedContentId == 0)
             return null;
 
+        if (!TryResolveAnchorPosition(out var anchor))
+            return null;
+
+        LastTrackedPlayerPosition = anchor;
+
+        if (cachedTrackedPosition is Vector3 cached && GameCoords.AreNear(
+                cached,
+                anchor,
+                FrontlineConstants.PositionUnchangedThresholdMeters))
+        {
+            if (Environment.TickCount64 - lastNaviRebuildTick < MoveRefreshIntervalMs)
+            {
+                TrackedPositionUnchanged = true;
+                return null;
+            }
+
+            lastNaviRebuildTick = Environment.TickCount64;
+            TrackedPositionUnchanged = false;
+            if (LastMoveTarget is Vector3 existingTarget)
+                return existingTarget;
+        }
+
+        TrackedPositionUnchanged = false;
+        cachedTrackedPosition = anchor;
+        LastMoveAnchorPosition = anchor;
+        LastMoveTarget = FollowMovePlanner.CreateDestination(anchor, selectionMode);
+        lastNaviRebuildTick = Environment.TickCount64;
+        return LastMoveTarget;
+    }
+
+    private static bool TryResolveAnchorPosition(out Vector3 anchor)
+    {
+        anchor = default;
+
+        var members = GetMembers();
         var tracked = FindTracked(members);
         if (tracked == null || tracked.Value.IsDead)
         {
@@ -76,28 +130,23 @@ public static class FollowTargetService
         if (tracked == null)
         {
             ClearMoveDebug();
-            return null;
+            return false;
         }
 
-        var position = tracked.Value.Position;
-        LastTrackedPlayerPosition = position;
-
-        if (cachedTrackedPosition is Vector3 cached && PositionsEqual(cached, position))
+        if (selectionMode == FollowSelectionMode.Hostile
+            && HostileModeFollow.TryCreateSnapshot(members, out var hostileSnapshot))
         {
-            TrackedPositionUnchanged = true;
-            return null;
+            anchor = HostileModeFollow.GetNavPosition(hostileSnapshot);
+            return true;
         }
 
-        TrackedPositionUnchanged = false;
-        cachedTrackedPosition = position;
-        LastMoveAnchorPosition = position;
-        LastMoveTarget = RandomOffset(position);
-        return LastMoveTarget;
+        anchor = tracked.Value.Position;
+        return true;
     }
 
-    private static List<AllianceMemberSnapshot> CollectMembers()
+    private static List<AllianceMemberSnapshot> GetMembers()
     {
-        var members = AllianceMemberCollector.Collect();
+        var members = AllianceMemberCache.GetMembers();
         LastAllianceMemberCount = members.Count;
         return members;
     }
@@ -112,9 +161,19 @@ public static class FollowTargetService
             return;
         }
 
+        if (HostileModeFollow.TryCreateSnapshot(members, out var hostileSnapshot))
+        {
+            var ally = HostileModeFollow.GetTrackTarget(hostileSnapshot);
+            LastProximityEnemyName = hostileSnapshot.EnemyName;
+            ApplyTarget(ally, FollowSelectionMode.Hostile, densestNeighborCount: 0);
+            return;
+        }
+
+        LastProximityEnemyName = string.Empty;
+
         var previousId = trackedContentId;
-        var densest = FindDensestMember(members, excludeSelf: true, excludeContentId: previousId)
-                      ?? (previousId != 0 ? FindDensestMember(members, excludeSelf: true) : null);
+        var densest = DensestMemberSelector.Find(members, excludeSelf: true, excludeContentId: previousId)
+                      ?? (previousId != 0 ? DensestMemberSelector.Find(members, excludeSelf: true) : null);
 
         if (densest == null)
         {
@@ -122,11 +181,32 @@ public static class FollowTargetService
             return;
         }
 
-        var picked = densest.Value.Member;
+        ApplyTarget(
+            densest.Value.Member,
+            FollowSelectionMode.GroupMovement,
+            densestNeighborCount: densest.Value.NeighborCount);
+    }
+
+    private static void ApplyTarget(
+        AllianceMemberSnapshot picked,
+        FollowSelectionMode mode,
+        int densestNeighborCount)
+    {
         trackedContentId = picked.ContentId;
         LastPickedMemberName = picked.Name;
-        LastDensestMemberName = picked.Name;
-        LastDensestNeighborCount = densest.Value.NeighborCount;
+        selectionMode = mode;
+
+        if (mode == FollowSelectionMode.GroupMovement)
+        {
+            LastDensestMemberName = picked.Name;
+            LastDensestNeighborCount = densestNeighborCount;
+        }
+        else
+        {
+            LastDensestMemberName = string.Empty;
+            LastDensestNeighborCount = 0;
+        }
+
         LastTrackedPlayerPosition = picked.Position;
         cachedTrackedPosition = picked.Position;
         TrackedPositionUnchanged = false;
@@ -135,8 +215,10 @@ public static class FollowTargetService
     private static void ClearTarget()
     {
         trackedContentId = 0;
+        selectionMode = FollowSelectionMode.None;
         ClearMoveDebug();
         LastPickedMemberName = string.Empty;
+        LastProximityEnemyName = string.Empty;
     }
 
     private static void ClearMoveDebug()
@@ -148,15 +230,15 @@ public static class FollowTargetService
         TrackedPositionUnchanged = false;
         LastDensestMemberName = string.Empty;
         LastDensestNeighborCount = 0;
+        lastNaviRebuildTick = 0;
     }
 
     private static bool ShouldReselectOnTimer()
     {
-        var now = Environment.TickCount64;
-        if (now - lastSelectionTick < ConfigIntervals.PlayerReselectMs)
+        if (Environment.TickCount64 - lastSelectionTick < MoveRefreshIntervalMs)
             return false;
 
-        lastSelectionTick = now;
+        lastSelectionTick = Environment.TickCount64;
         return true;
     }
 
@@ -168,45 +250,4 @@ public static class FollowTargetService
 
     private static AllianceMemberSnapshot? FindTracked(IReadOnlyList<AllianceMemberSnapshot> members) =>
         members.FirstOrDefault(m => m.ContentId == trackedContentId);
-
-    private static bool PositionsEqual(Vector3 a, Vector3 b) =>
-        GameCoords.AreNear(a, b, FrontlineConstants.PositionUnchangedThresholdMeters);
-
-    private static (AllianceMemberSnapshot Member, int NeighborCount)? FindDensestMember(
-        IReadOnlyList<AllianceMemberSnapshot> members,
-        bool excludeSelf = false,
-        ulong excludeContentId = 0)
-    {
-        var alive = members
-            .Where(m => !m.IsDead
-                        && (!excludeSelf || m.ContentId != Player.CID)
-                        && (excludeContentId == 0 || m.ContentId != excludeContentId))
-            .ToList();
-
-        if (alive.Count == 0)
-            return null;
-
-        var radius = FrontlineConstants.DensityRadiusMeters;
-        var radiusSq = radius * radius;
-        var counts = new List<(AllianceMemberSnapshot Member, int Count)>(alive.Count);
-
-        foreach (var candidate in alive)
-        {
-            var count = alive.Count(m => Vector3.DistanceSquared(candidate.Position, m.Position) <= radiusSq);
-            counts.Add((candidate, count));
-        }
-
-        var maxCount = counts.Max(c => c.Count);
-        var ties = counts.Where(c => c.Count == maxCount).Select(c => c.Member).ToList();
-        return (ties[Random.Shared.Next(ties.Count)], maxCount);
-    }
-
-    private static Vector3 RandomOffset(Vector3 anchor)
-    {
-        var angle = Random.Shared.NextSingle() * MathF.PI * 2f;
-        var min = FrontlineConstants.MoveOffsetMinMeters;
-        var max = FrontlineConstants.MoveOffsetMaxMeters;
-        var dist = min + Random.Shared.NextSingle() * (max - min);
-        return anchor + new Vector3(MathF.Cos(angle) * dist, 0f, MathF.Sin(angle) * dist);
-    }
 }

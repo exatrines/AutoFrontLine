@@ -3,31 +3,23 @@ using ECommons.GameHelpers;
 
 namespace AutoFrontline.Services;
 
-/// <summary>RSR が Off / Manual のとき Auto Big へ揃える。Auto Big 中は何もしない。</summary>
+/// <summary>RSR が Manual 以外なら Manual へ揃える。</summary>
 internal static class RotationModeAutomation
 {
     public static void Update()
     {
-        if (!RequiredPlugins.IsAutomationActive)
-            return;
-
-        if (!FrontlineFields.IsFrontline(Svc.ClientState.TerritoryType))
+        if (!AutomationContext.CanRunInFrontlineMatch)
             return;
 
         if (!RequiredPlugins.IsLoaded(RequiredPlugins.RotationSolver.InternalName))
             return;
 
-        var state = RotationSolverState.Get();
-
-        if (state is RotationSolverOperatingState.AutoBig or RotationSolverOperatingState.Unknown)
+        if (RotationSolverState.Get() is RotationSolverOperatingState.Manual)
             return;
 
-        if (state is not (RotationSolverOperatingState.Off or RotationSolverOperatingState.Manual))
+        if (!EzThrottler.Throttle(FrontlineConstants.ThrottleRotationManual, FrontlineConstants.RotationManualIntervalMs))
             return;
 
-        if (!EzThrottler.Throttle(FrontlineConstants.ThrottleRotationAutoBig, FrontlineConstants.RotationAutoBigIntervalMs))
-            return;
-
-        Chat.ExecuteCommand("/rotation Auto Big");
+        Chat.ExecuteCommand("/rotation manual");
     }
 }
